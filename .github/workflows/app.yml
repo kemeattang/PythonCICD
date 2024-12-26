@@ -1,0 +1,104 @@
+name: Secure CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set Up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Run Tests
+      - name: Run Tests
+        run: pytest
+
+  scan_dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Dependency Scan with Snyk
+      - name: Snyk Dependency Scan
+        uses: snyk/actions/python@v3
+        with:
+          args: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  scan_container:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Build Docker Image
+      - name: Build Docker Image
+        run: docker build -t secure-cicd-pipeline .
+
+      # Step 3: Scan Docker Image with Trivy
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@v0.3.1
+        with:
+          image-ref: secure-cicd-pipeline
+
+  dynamic_security_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Start OWASP ZAP
+      - name: Start OWASP ZAP
+        run: |
+          docker pull owasp/zap2docker-stable
+          docker run -d --name zap -u zap -p 8080:8080 -p 8090:8090 owasp/zap2docker-stable zap.sh -daemon \
+            -host 0.0.0.0 -port 8080
+
+      # Step 2: Start the Application
+      - name: Start Application
+        run: |
+          docker-compose up -d
+          sleep 15
+
+      # Step 3: Run OWASP ZAP Scan
+      - name: OWASP ZAP Active Scan
+        run: |
+          docker exec zap zap-cli -p 8080 active-scan http://localhost:8080
+          echo "Active scan completed."
+
+      # Step 4: Generate OWASP ZAP Report
+      - name: Generate OWASP ZAP Report
+        run: |
+          docker exec zap zap-cli -p 8080 report -o /zap/wrk/zap_report.html -f html
+          docker cp zap:/zap/wrk/zap_report.html .
+
+      # Step 5: Upload Report
+      - name: Upload OWASP ZAP Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: OWASP ZAP Report
+          path: zap_report.html
