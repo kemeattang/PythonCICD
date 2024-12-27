@@ -43,7 +43,7 @@ jobs:
 
       # Step 2: Dependency Scan with Snyk
       - name: Snyk Dependency Scan
-        uses: snyk/actions/python@v2
+        uses: snyk/actions/python
         with:
           args: test
         env:
