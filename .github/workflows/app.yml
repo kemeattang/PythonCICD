@@ -65,7 +65,7 @@ jobs:
       - name: Trivy Scan
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: PythonCICD:latest
+          image-ref: pythoncicd:latest
 
   dynamic_security_scan:
     runs-on: ubuntu-latest
