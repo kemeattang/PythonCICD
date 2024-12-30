@@ -84,7 +84,7 @@ jobs:
       # Step 3: Start the Application
       - name: Start Application
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 15
 
       # Step 4: Run OWASP ZAP Scan
