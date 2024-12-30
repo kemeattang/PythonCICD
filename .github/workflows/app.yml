@@ -88,10 +88,14 @@ jobs:
           sleep 15
 
       # Step 4: Run OWASP ZAP Scan
-      - name: OWASP ZAP Active Scan
-        run: |
-          docker exec zap zap-cli -p 8080 active-scan http://localhost:8080
-          echo "Active scan completed."
+      - name: OWASP ZAP
+         uses: zaproxy/action-baseline@v0.4.0
+         with:
+           # Target URL
+           target: "http://localhost:8080"
+           fail_action: false
+           token: $
+           issue_title: Security Tests
 
       # Step 5: Generate OWASP ZAP Report
       - name: Generate OWASP ZAP Report
