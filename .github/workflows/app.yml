@@ -71,31 +71,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Start OWASP ZAP
+      # Step 1: Checkout Repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Start OWASP ZAP
       - name: Start OWASP ZAP
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:stable
           docker run -dt --name owasp zaproxy/zap-stable /bin/bash
 
-      # Step 2: Start the Application
+      # Step 3: Start the Application
       - name: Start Application
         run: |
           docker-compose up -d
           sleep 15
 
-      # Step 3: Run OWASP ZAP Scan
+      # Step 4: Run OWASP ZAP Scan
       - name: OWASP ZAP Active Scan
         run: |
           docker exec zap zap-cli -p 8080 active-scan http://localhost:8080
           echo "Active scan completed."
 
-      # Step 4: Generate OWASP ZAP Report
+      # Step 5: Generate OWASP ZAP Report
       - name: Generate OWASP ZAP Report
         run: |
           docker exec zap zap-cli -p 8080 report -o /zap/wrk/zap_report.html -f html
           docker cp zap:/zap/wrk/zap_report.html .
 
-      # Step 5: Upload Report
+      # Step 6: Upload Report
       - name: Upload OWASP ZAP Report
         uses: actions/upload-artifact@v3
         with:
