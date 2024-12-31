@@ -98,7 +98,7 @@ jobs:
       - name: Generate OWASP ZAP Report
         run: |
           docker exec zap zap-cli -p 8080 report -o /zap/wrk/zap_report.html -f html
-          docker cp zap:/zap/wrk/zap_report.html .
+          docker cp zap:/zap/wrk/zap_report.html 
 
       # Step 6: Upload Report
       - name: Upload OWASP ZAP Report
