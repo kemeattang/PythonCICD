@@ -1,8 +1,9 @@
-Documentation: Security Policies and Tools
-Overview
+## Security Policies and Tools
+
+## Overview
 This documentation provides details on the security policies enforced in the CI/CD pipeline and the tools used to ensure application and infrastructure security.
 
-Security Policies
+## Security Policies
 1. Dependency Management
 Policy: Ensure all application dependencies are scanned for vulnerabilities.
 Implementation:
