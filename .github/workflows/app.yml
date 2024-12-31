@@ -1,4 +1,4 @@
-name: Secure CI/CD Pipeline
+name: Secure Python CI/CD Pipeline
 
 on:
   push:
